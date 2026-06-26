@@ -1,0 +1,86 @@
+<%- include('partials/header.ejs') %>
+	<div class="max-w-7xl mx-auto px-6 py-4">
+		<div class="flex flex-col sm:flex-row gap-8">
+			<!-- Cover -->
+			<div class="flex-shrink-0">
+				<div
+					class="relative bg-[#FEF9E7] rounded-xl overflow-hidden w-40 h-56 flex items-center justify-center shadow-sm border border-slate-200">
+					<% if (book.cover_id) { %>
+						<div class="absolute inset-0 animate-pulse bg-slate-200"></div>
+						<!-- Image -->
+						<img src="https://covers.openlibrary.org/b/id/<%= book.cover_id %>-M.jpg" alt="<%= book.title %> cover"
+							class="w-full h-full object-cover opacity-0 transition-opacity duration-300 relative z-10" onload="
+                    this.classList.remove('opacity-0');
+                    this.previousElementSibling.classList.add('hidden');
+                ">
+						<% } else { %>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+								stroke-width="1.5" class="w-12 h-12 text-slate-300">
+								<path stroke-linecap="round" stroke-linejoin="round"
+									d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+							</svg>
+							<% } %>
+				</div>
+			</div>
+
+			<!-- Info -->
+			<div class="flex flex-col gap-3">
+				<h1 class="text-2xl font-bold text-[#1E2832]">
+					<%= book.title %>
+				</h1>
+				<p class="text-slate-500 text-sm">by <%= book.author %>
+				</p>
+
+				<!-- Stars -->
+				<div class="flex items-center gap-1">
+					<% for (let i=1; i <=5; i++) { %>
+						<svg xmlns="http://www.w3.org/2000/svg"
+							class="w-5 h-5 <%= i <= book.rating ? 'text-[#F5C842]' : 'text-slate-200' %>" viewBox="0 0 24 24"
+							fill="currentColor">
+							<path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+						</svg>
+						<% } %>
+				</div>
+
+				<p class="text-sm text-slate-500">
+					📅 Read on <span class="text-[#1E2832] font-medium">
+						<%= new Date(book.date_read).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' , day: 'numeric'
+							}) %>
+					</span>
+				</p>
+
+				<!-- Actions -->
+				<div class="flex gap-3 mt-2">
+					<a href="/edit-book/<%= book.id %>"
+						class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-[#1E2832] text-[#1E2832] hover:bg-[#1E2832] hover:text-[#F5C842] transition">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+							stroke="currentColor" class="w-4 h-4">
+							<path stroke-linecap="round" stroke-linejoin="round"
+								d="M16.862 4.487a2.032 2.032 0 1 1 2.872 2.872L7.5 19.613l-4 1 1-4L16.862 4.487z" />
+						</svg>
+						Edit
+					</a>
+
+					<form action="/book/<%= book.id %>/delete" method="POST">
+						<button type="submit" onclick="return confirm('Delete this book?')"
+							class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-red-300 text-red-500 hover:bg-red-50 transition">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+								stroke="currentColor" class="w-4 h-4">
+								<path stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+							</svg>
+							Delete
+						</button>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<div class="mt-8">
+			<h2 class="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-3">My Notes</h2>
+			<div class="bg-white border border-slate-200 rounded-xl p-6 text-slate-700 text-sm leading-relaxed shadow-sm">
+				<%= book.notes || 'No notes added yet.' %>
+			</div>
+		</div>
+	</div>
+	<%- include('partials/footer.ejs') %>
+	

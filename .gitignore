@@ -1,0 +1,4 @@
+.env
+node_modules/
+public/output.css
+npm-debug.log*

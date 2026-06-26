@@ -1,0 +1,209 @@
+<%- include('partials/header.ejs') %>
+	<% const genres=[ { value: 'fiction' , label: 'Fiction' }, { value: 'non-fiction' , label: 'Non-Fiction' }, {
+		value: 'science' , label: 'Science' }, { value: 'history' , label: 'History' }, { value: 'biography' ,
+		label: 'Biography' }, { value: 'self-help' , label: 'Self Help' }, { value: 'romance' , label: 'Romance' }, {
+		value: 'sci-fi' , label: 'Sci-Fi' }, { value: 'motivational' , label: 'Motivational' }, ]; %>
+		<div class="max-w-7xl mx-auto px-6 py-4">
+			<h1 class="text-2xl font-bold text-[#1E2832]">
+				<%= edit ? 'Edit Book' : 'Add a Book' %>
+			</h1>
+			<p class="text-slate-500 text-sm mt-1">
+				<%= edit ? 'Update your notes or rating' : 'Log a book you have read' %>
+			</p>
+		</div>
+
+		<form action="<%= edit ? '/edit-book-details/' + book.id : '/save-data' %>" method="POST"
+			class="max-w-7xl mx-auto px-6 py-4">
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<!-- Title -->
+				<div class="flex flex-col gap-1">
+					<label for="title" class="text-sm font-medium text-slate-700">Title <span
+							class="text-red-400">*</span></label>
+					<input type="text" id="title" name="title" placeholder="e.g. Deep Work"
+						class="rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:border-[#1E2832] transition"
+						value="<%= edit ? book.title : '' %>" required />
+				</div>
+
+				<!-- Author -->
+				<div class="flex flex-col gap-1">
+					<label for="author" class="text-sm font-medium text-slate-700">Author <span
+							class="text-red-400">*</span></label>
+					<input type="text" id="author" name="author" placeholder="e.g. Cal Newport"
+						class="rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:border-[#1E2832] transition"
+						value="<%= edit ? book.author : '' %>" required />
+				</div>
+
+				<!-- Date Read -->
+				<div class="flex flex-col gap-1">
+					<label for="date_read" class="text-sm font-medium text-slate-700">Date Read <span
+							class="text-red-400">*</span></label>
+					<input type="date" id="date_read" name="date_read"
+						class="rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:border-[#1E2832] transition"
+						value="<%= edit && book.date_read ? new Date(book.date_read).toISOString().split('T')[0] : '' %>"
+						required />
+				</div>
+
+				<!-- Genre -->
+				<div class="flex flex-col gap-1">
+					<label for="genre" class="text-sm font-medium text-slate-700">Genre</label>
+					<select id="genre" name="genre"
+						class="rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:border-[#1E2832] transition bg-white">
+						<option value="">Select genre</option>
+						<% genres.forEach(genre=> { %>
+							<option value="<%= genre.value %>" <% if (edit && book.genre===genre.value) { %> selected <% } %>>
+									<%= genre.label %>
+							</option>
+							<% }); %>
+					</select>
+				</div>
+
+				<!-- Rating -->
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-medium text-slate-700">Rating <span class="text-red-400">*</span></label>
+					<div class="flex items-center gap-1" id="star-rating">
+						<% [1,2,3,4,5].forEach(n=> { %>
+							<button type="button" data-value="<%= n %>"
+								class="star-btn text-2xl text-slate-300 hover:text-[#F5C842] transition">&#9733;</button>
+							<% }) %>
+					</div>
+					<input type="hidden" id="rating" name="rating" value="0" required />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-medium text-slate-700">Cover Preview</label>
+					<button type="button" id="fetch-cover-btn"
+						class="w-full px-4 py-2 text-sm font-medium rounded-lg border border-[#1E2832] text-[#1E2832] hover:bg-[#1E2832] hover:text-[#F5C842] transition">
+						Fetch Cover
+					</button>
+
+					<!-- Preview area -->
+					<div id="cover-preview"
+						class="mt-2 bg-[#FEF9E7] border border-dashed border-slate-300 rounded-lg h-48 flex items-center justify-center text-slate-400 text-xs">
+						<span id="cover-placeholder">Cover will appear here</span>
+						<img id="cover-img" src="" alt="Book cover" class="hidden h-44 w-28 object-cover rounded-lg shadow-sm" />
+					</div>
+					<!-- Hidden input to store cover_id for form submission -->
+					<input type="hidden" id="cover_id" name="cover_id" value="" />
+				</div>
+			</div>
+
+			<!-- Notes -->
+			<div class="flex flex-col gap-1 mt-6">
+				<label for="notes" class="text-sm font-medium text-slate-700">Notes</label>
+				<textarea id="notes" name="notes" rows="4" placeholder="What did you take away from this book?"
+					class="rounded-lg border border-slate-300 p-2.5 text-sm focus:outline-none focus:border-[#1E2832] transition resize-none"><%= edit ? book.notes : '' %></textarea>
+			</div>
+
+			<!-- Actions -->
+			<div class="flex justify-end gap-3 mt-6">
+				<a href="/"
+					class="px-4 py-2 text-sm font-medium rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 transition">
+					Cancel
+				</a>
+				<button type="submit"
+					class="px-4 py-2 text-sm font-medium rounded-lg bg-[#1E2832] text-[#F5C842] hover:bg-slate-700 transition">
+					<%= edit ? 'Save Changes' : 'Save Book' %>
+				</button>
+			</div>
+
+		</form>
+
+		<!-- Star rating script -->
+		<script>
+			const stars = document.querySelectorAll('.star-btn');
+			const ratingInput = document.getElementById('rating');
+
+			stars.forEach(star => {
+				star.addEventListener('click', () => {
+					const val = parseInt(star.dataset.value);
+					ratingInput.value = val;
+					stars.forEach(s => {
+						s.style.color = parseInt(s.dataset.value) <= val ? '#F5C842' : '#CBD5E1';
+					});
+				});
+			});
+			const state = {
+				cover_id: null,
+				isFetching: false,
+			};
+
+			const titleInput = document.getElementById('title');
+			const authorInput = document.getElementById('author');
+			const fetchBtn = document.getElementById('fetch-cover-btn');
+			const placeholder = document.getElementById('cover-placeholder');
+			const coverImg = document.getElementById('cover-img');
+			const coverIdInput = document.getElementById('cover_id');
+
+
+			function showCover(cover_id) {
+				state.cover_id = cover_id;
+				coverIdInput.value = cover_id;
+				coverImg.src = `https://covers.openlibrary.org/b/id/${cover_id}-M.jpg`;
+				coverImg.classList.remove('hidden');
+				placeholder.classList.add('hidden');
+				fetchBtn.textContent = '✓ Cover Found';
+			}
+
+			function showNoCover() {
+				state.cover_id = null;
+				coverIdInput.value = '';
+				coverImg.classList.add('hidden');
+				placeholder.classList.remove('hidden');
+				placeholder.textContent = 'No cover found — book will use default icon.';
+				fetchBtn.textContent = 'Fetch Cover';
+			}
+
+			function showError() {
+				placeholder.textContent = 'Something went wrong. Try again.';
+				fetchBtn.textContent = 'Fetch Cover';
+			}
+
+			function setFetching(isFetching) {
+				state.isFetching = isFetching;
+				fetchBtn.disabled = isFetching;
+				fetchBtn.textContent = isFetching ? 'Fetching...' : 'Fetch Cover';
+				placeholder.textContent = isFetching ? 'Looking up cover...' : 'Cover will appear here';
+			}
+
+			fetchBtn.addEventListener('click', async () => {
+				const title = titleInput.value.trim();
+				const author = authorInput.value.trim();
+
+				if (!title || !author) {
+					alert('Please enter both title and author first.');
+					return;
+				}
+
+				setFetching(true);
+
+				try {
+					const response = await fetch(`/api/cover?title=${encodeURIComponent(title)}&author=${encodeURIComponent(author)}`);
+					const data = await response.json();
+
+					if (data.cover_id) {
+						showCover(data.cover_id);
+					} else {
+						showNoCover();
+					}
+
+				} catch (err) {
+					console.error(err);
+					showError();
+				} finally {
+					setFetching(false);
+				}
+			});
+			const editRating = <%= edit ?parseInt(book.rating) : 0 %>;
+			if (editRating > 0) {
+				ratingInput.value = editRating;
+				stars.forEach(s => {
+					s.style.color = parseInt(s.dataset.value) <= editRating ? '#F5C842' : '#CBD5E1';
+				});
+			}
+			const editCoverId = <%= edit && book.cover_id ? book.cover_id : 'null' %>;
+			if (editCoverId) {
+				showCover(editCoverId);
+			}
+		</script>
+		<%- include('partials/footer.ejs') %>
+		

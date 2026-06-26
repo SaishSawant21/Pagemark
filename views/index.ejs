@@ -1,0 +1,68 @@
+<%- include('partials/header.ejs') %>
+
+	<div class="px-6 py-4">
+		<span class="text-slate-800 text-2xl font-semibold">My Reading Shelf</span>
+	</div>
+	<div class="flex flex-wrap gap-2 py-3 px-6">
+		<% sortGrp.forEach((item)=> { %>
+			<a href="<%= item.href %>" class="border text-sm px-4 py-1.5 rounded-full transition
+      <%= item.active
+        ? 'bg-[#1E2832] border-[#1E2832] text-[#F5C842]'
+        : 'bg-white border-slate-300 text-slate-600 hover:border-[#1E2832] hover:text-[#1E2832]' %>">
+				<%= item.label %>
+			</a>
+			<% }); %>
+	</div>
+	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-6 py-4">
+		<% books.forEach((book)=> { %>
+			<a href="/book-detail/<%= book.id %>"
+				class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-md hover:border-[#F5C842] transition group">
+
+				<!-- Book Cover -->
+				<div class="bg-[#FEF9E7] h-52 flex items-center justify-center overflow-hidden relative">
+					<% if (book.cover_id) { %>
+
+						<!-- Skeleton loader -->
+						<div class="skeleton absolute inset-0 bg-slate-200 animate-pulse"></div>
+
+						<!-- Cover image -->
+						<img src="https://covers.openlibrary.org/b/id/<%= book.cover_id %>-M.jpg"
+							alt="<%= book.title %> cover"
+							class="h-full w-full object-cover opacity-0 transition-opacity duration-300"
+							onload="this.classList.remove('opacity-0'); this.previousElementSibling.remove();"
+							onerror="this.remove(); this.previousElementSibling.remove();" />
+
+						<% } else { %>
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+								stroke="currentColor" stroke-width="1.5" class="w-12 h-12 text-slate-300">
+								<path stroke-linecap="round" stroke-linejoin="round"
+									d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+							</svg>
+							<% } %>
+				</div>
+
+				<div class="p-4">
+					<h3 class="font-semibold text-[#1E2832] text-sm leading-snug mb-1 truncate">
+						<%= book.title %>
+					</h3>
+					<p class="text-slate-500 text-xs mb-3 truncate">
+						<%= book.author %>
+					</p>
+
+					<!-- Star Rating -->
+					<div class="flex items-center gap-1">
+						<% for (let i=1; i <=5; i++) { %>
+							<svg xmlns="http://www.w3.org/2000/svg"
+								class="w-3.5 h-3.5 <%= i <= parseInt(book.rating) ? 'text-[#F5C842]' : 'text-slate-200' %>"
+								viewBox="0 0 24 24" fill="currentColor">
+								<path
+									d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+							</svg>
+							<% } %>
+					</div>
+				</div>
+
+			</a>
+			<% }); %>
+	</div>
+	<%- include('partials/footer.ejs') %>
