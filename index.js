@@ -155,6 +155,10 @@ app.get("/book-detail/:id", async (req, res) => {
 	}
 });
 
+app.use((req,res)=>{
+	res.status(404).render("404.ejs",{page: '404'})
+})
+
 app.listen(port, () => {
 	console.log('Running...');
 })
