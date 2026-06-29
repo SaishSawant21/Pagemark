@@ -16,8 +16,7 @@
 	<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-6 py-4">
 		<% books.forEach((book)=> { %>
 			<a href="/book-detail/<%= book.id %>"
-				class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden hover:shadow-md hover:border-[#F5C842] transition group">
-
+				class="stagger-in bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md hover:border-[#F5C842] group transition-all duration-200 hover:-translate-y-1"
 				<!-- Book Cover -->
 				<div class="bg-[#FEF9E7] h-52 flex items-center justify-center overflow-hidden relative">
 					<% if (book.cover_id) { %>

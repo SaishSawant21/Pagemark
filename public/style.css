@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+a,button {
+  cursor: pointer;
+}
+
 @layer base {
   body {
     font-family: 'Lora', serif;
@@ -10,6 +14,35 @@
   }
 }
 
-a,button {
-  cursor: pointer;
+@layer utilities {
+  .fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+  }
+
+  .slide-up {
+    animation: slideUp 0.4s ease-out;
+  }
+
+  .stagger-in {
+    animation: fadeIn 0.4s ease-in-out both;
+  }
+
+  @layer utilities {
+  .btn-press {
+    transition: transform 0.1s ease;
+  }
+  .btn-press:active {
+    transform: scale(0.97);
+  }
+}
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 }
