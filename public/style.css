@@ -9,3 +9,7 @@
     font-family: 'Playfair Display', serif;
   }
 }
+
+a,button {
+  cursor: pointer;
+}
