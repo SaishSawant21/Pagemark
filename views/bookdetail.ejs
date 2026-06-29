@@ -61,7 +61,7 @@
 						Edit
 					</a>
 
-					<form action="/book/<%= book.id %>/delete" method="POST">
+					<form action="/delete-book/<%= book.id %>" method="POST">
 						<button type="submit" onclick="return confirm('Delete this book?')"
 							class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-red-300 text-red-500 hover:bg-red-50 transition">
 							<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"

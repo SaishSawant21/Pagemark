@@ -73,54 +73,6 @@ app.get("/add-book", (req, res) => {
 	});
 });
 
-app.get("/edit-book/:id", async (req, res) => {
-	const id = req.params.id;
-	const bookData = await getSingleBookData(id);
-	res.render('addeditbook.ejs', {
-		edit: true,
-		book: bookData.rows[0],
-		page: 'Edit Book'
-	});
-});
-
-app.post("/edit-book-details/:id", async (req, res) => {
-	try {
-		const id = req.params.id;
-		let { title, author, date_read, genre, rating, cover_id, notes } = req.body;
-		cover_id = cover_id || null;
-		await db.query(`Update books SET title=$1, author=$2, cover_id=$3 WHERE id=$4`,
-			[title, author, cover_id, id]
-		);
-		await db.query(
-			"Update book_details SET date_read=$1, genre=$2, rating=$3, notes=$4 WHERE book_id=$5 ",
-			[date_read, genre, rating, notes, id]
-		);
-		res.redirect('/')
-
-	} catch (error) {
-		console.log('Something went wrong', error);
-	}
-})
-
-app.post("/save-data", async (req, res) => {
-	try {
-		let { title, author, date_read, genre, rating, cover_id, notes } = req.body;
-		cover_id = cover_id || null;
-		const bookResult = await db.query("INSERT into books (title, author, cover_id) Values($1,$2,$3) RETURNING id",
-			[title, author, cover_id]
-		);
-		const book_id = bookResult.rows[0].id;
-		await db.query(
-			"INSERT into book_details (book_id, date_read, genre, rating, notes) Values($1,$2,$3,$4,$5) ",
-			[book_id, date_read, genre, rating, notes]
-		);
-		res.redirect('/')
-
-	} catch (e) {
-		// console.log('Something went wrong', e);
-	}
-})
-
 app.get("/api/cover", async (req, res) => {
 	const { title, author } = req.query;
 	try {
@@ -142,6 +94,57 @@ app.get("/api/cover", async (req, res) => {
 		console.log("Something went wrong", e);
 	}
 })
+
+app.post("/save-data", async (req, res) => {
+	try {
+		let { title, author, date_read, genre, rating, cover_id, notes } = req.body;
+		cover_id = cover_id || null;
+		const bookResult = await db.query("INSERT into books (title, author, cover_id) Values($1,$2,$3) RETURNING id",
+			[title, author, cover_id]
+		);
+		const book_id = bookResult.rows[0].id;
+		await db.query(
+			"INSERT into book_details (book_id, date_read, genre, rating, notes) Values($1,$2,$3,$4,$5) ",
+			[book_id, date_read, genre, rating, notes]
+		);
+		res.redirect('/')
+
+	} catch (e) {
+		console.log('Something went wrong', e);
+	}
+})
+
+app.get("/edit-book/:id", async (req, res) => {
+	const id = req.params.id;
+	const bookData = await getSingleBookData(id);
+	res.render('addeditbook.ejs', {
+		edit: true,
+		book: bookData.rows[0],
+		page: 'Edit Book'
+	});
+});
+
+
+app.post("/edit-book-details/:id", async (req, res) => {
+	try {
+		const id = req.params.id;
+		let { title, author, date_read, genre, rating, cover_id, notes } = req.body;
+		cover_id = cover_id || null;
+		await db.query(`Update books SET title=$1, author=$2, cover_id=$3 WHERE id=$4`,
+			[title, author, cover_id, id]
+		);
+		await db.query(
+			"Update book_details SET date_read=$1, genre=$2, rating=$3, notes=$4 WHERE book_id=$5 ",
+			[date_read, genre, rating, notes, id]
+		);
+		res.redirect('/')
+
+	} catch (error) {
+		console.log('Something went wrong', error);
+	}
+})
+
+
 app.get("/book-detail/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
@@ -154,6 +157,20 @@ app.get("/book-detail/:id", async (req, res) => {
 	}
 });
 
+app.post('/delete-book/:id',async(req,res)=>{
+	try{
+		const id = req.params.id;
+		await db.query('DELETE FROM book_details where book_id = $1',
+			[id]
+		)
+		await db.query('DELETE FROM books where id = $1',
+			[id]
+		)
+		res.redirect('/')
+	}catch(e){
+		console.log('Something went wrong',e);
+	}
+})
 app.use((req, res) => {
 	res.status(404).render("404.ejs", { page: '404' })
 })
