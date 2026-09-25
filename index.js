@@ -1,17 +1,18 @@
+import 'dotenv/config';
+
 import axios from 'axios';
 import express from 'express';
 import pg from 'pg';
-import dotenv from 'dotenv'
 
-dotenv.config();
-
+import aiRoutes from "./routes/aiRoutes.js";
+import { getBooksData } from './services/bookService.js';
 const app = express();
 const port = process.env.PORT || 3001;
 
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
+app.use("/api/ai", aiRoutes);
 const db = new pg.Client({
 	connectionString: process.env.DATABASE_URL,
 	ssl: {
@@ -20,22 +21,6 @@ const db = new pg.Client({
 });
 
 await db.connect();
-
-async function getBooksData(sort) {
-	let queryHalfOne = `SELECT books.id, books.title, books.author, books.cover_id,
-	book_details.rating, book_details.date_read FROM books  
-	INNER JOIN book_details ON books.id = book_details.book_id `
-	let queryHalfTwo = "";
-	if (sort === 'title') queryHalfTwo = "ORDER BY books.title ASC"
-	else if (sort === 'date') queryHalfTwo = "ORDER BY book_details.date_read ASC"
-	else if (sort === 'rating') queryHalfTwo = "ORDER BY book_details.rating ASC"
-	try {
-		const data = await db.query(queryHalfOne + queryHalfTwo);
-		return data.rows;
-	} catch (error) {
-		console.log('Something went wrong', error);
-	}
-}
 
 async function getSingleBookData(id) {
 	return await db.query(`
@@ -71,6 +56,15 @@ app.get("/add-book", (req, res) => {
 		page: 'Add Book',
 		edit: false
 	});
+});
+
+app.get("/test-books", async (req, res) => {
+	const books = await getBooksData();
+	const bookContext = formatBooksForAI(books);
+
+	console.log(bookContext);
+
+	res.send(bookContext);
 });
 
 app.get("/api/cover", async (req, res) => {
@@ -144,7 +138,6 @@ app.post("/edit-book-details/:id", async (req, res) => {
 	}
 })
 
-
 app.get("/book-detail/:id", async (req, res) => {
 	const id = req.params.id;
 	try {
@@ -157,8 +150,9 @@ app.get("/book-detail/:id", async (req, res) => {
 	}
 });
 
-app.post('/delete-book/:id',async(req,res)=>{
-	try{
+
+app.post('/delete-book/:id', async (req, res) => {
+	try {
 		const id = req.params.id;
 		await db.query('DELETE FROM book_details where book_id = $1',
 			[id]
@@ -167,8 +161,8 @@ app.post('/delete-book/:id',async(req,res)=>{
 			[id]
 		)
 		res.redirect('/')
-	}catch(e){
-		console.log('Something went wrong',e);
+	} catch (e) {
+		console.log('Something went wrong', e);
 	}
 })
 app.use((req, res) => {
