@@ -4,8 +4,8 @@ import axios from 'axios';
 import express from 'express';
 import pg from 'pg';
 
-import aiRoutes from "./routes/aiRoutes.js";
-import { getBooksData } from './services/bookService.js';
+import aiRoutes from "./server/routes/aiRoutes.js";
+import { getBooksData } from './server/services/bookService.js';
 const app = express();
 const port = process.env.PORT || 3001;
 
