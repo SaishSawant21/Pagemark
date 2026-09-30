@@ -1,5 +1,5 @@
 import { generateAIResponse } from "../services/aiService.js";
-import { formatBooksForAI, getBooksData } from "../services/bookService.js";
+import { formatBooksForAI, getBooks } from "../services/bookService.js";
 
 export const chatWithAI = async (req, res) => {
   try {
@@ -12,7 +12,7 @@ export const chatWithAI = async (req, res) => {
     }
 
     // Get all books for general/shelf-level questions
-    const books = await getBooksData();
+    const books = await getBooks();
 
     const bookContext = formatBooksForAI(books);
 

@@ -1,53 +1,72 @@
-import pg from "pg";
+import * as bookModel from "../models/bookModel.js";
+import * as bookDetailsModel from "../models/bookDetailsModel.js";
 
-const db = new pg.Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-await db.connect();
 
 export function formatBooksForAI(books) {
-  return books.map(book => `
+  return books
+    .map(
+      (book) => `
 Title: ${book.title}
 Author: ${book.author}
 Genre: ${book.genre || "Not specified"}
 Rating: ${book.rating || "Not rated"}
 Date Read: ${book.date_read || "Not specified"}
 Notes: ${book.notes || "No notes"}
-`).join("\n");
+`
+    )
+    .join("\n");
 }
 
-export async function getBooksData(sort) {
-  let query = `
-    SELECT 
-      books.id,
-      books.title,
-      books.author,
-      books.cover_id,
-      book_details.rating,
-      book_details.date_read,
-      book_details.genre,
-      book_details.notes
-    FROM books
-    INNER JOIN book_details 
-      ON books.id = book_details.book_id
-  `;
 
-  if (sort === "title") {
-    query += ` ORDER BY books.title ASC`;
-  } else if (sort === "date") {
-    query += ` ORDER BY book_details.date_read ASC`;
-  } else if (sort === "rating") {
-    query += ` ORDER BY book_details.rating ASC`;
+export async function getBooks(sort) {
+  return await bookModel.getAllBooks(sort);
+}
+
+
+export async function getBook(id) {
+  const book = await bookModel.getBookById(id);
+
+  if (!book) {
+    return null;
   }
 
-  try {
-    const data = await db.query(query);
-    return data.rows;
-  } catch (error) {
-    console.log("Something went wrong", error);
-  }
+  const details = await bookDetailsModel.getBookDetails(id);
+
+  return {
+    ...book,
+    ...details,
+  };
+}
+
+
+export async function createBook(bookData) {
+  const {
+    title,
+    author,
+    date_read,
+    genre,
+    rating,
+    cover_id,
+    notes,
+  } = bookData;
+
+  const book = await bookModel.createBook(
+    title,
+    author,
+    cover_id || null
+  );
+
+  const details =
+    await bookDetailsModel.createBookDetails(
+      book.id,
+      date_read || null,
+      genre || null,
+      rating || null,
+      notes || null
+    );
+
+  return {
+    ...book,
+    ...details,
+  };
 }
