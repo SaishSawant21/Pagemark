@@ -44,3 +44,34 @@ export async function createBookDetails(
 
   return result.rows[0];
 }
+
+export async function updateBookDetails(
+  bookId,
+  dateRead,
+  genre,
+  rating,
+  notes
+) {
+  const result = await db.query(
+    `
+		UPDATE book_details
+		SET
+			date_read = $1,
+			genre = $2,
+			rating = $3,
+			notes = $4,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE book_id = $5
+		RETURNING *
+		`,
+    [
+      dateRead,
+      genre,
+      rating,
+      notes,
+      bookId,
+    ]
+  );
+
+  return result.rows[0];
+}

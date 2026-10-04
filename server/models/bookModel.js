@@ -60,3 +60,30 @@ export async function createBook(title, author, coverId) {
 
   return result.rows[0];
 }
+
+export async function updateBook(
+	id,
+	title,
+	author,
+	coverId
+) {
+	const result = await db.query(
+		`
+		UPDATE books
+		SET
+			title = $1,
+			author = $2,
+			cover_id = $3
+		WHERE id = $4
+		RETURNING id, title, author, cover_id
+		`,
+		[
+			title,
+			author,
+			coverId,
+			id,
+		]
+	);
+
+	return result.rows[0];
+}
