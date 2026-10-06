@@ -1,192 +1,238 @@
 # 📖 PageMark
 
-> A full-stack personal book tracking web app — log books you've read, rate them, write notes, and browse your reading shelf.
+> A full-stack book tracking web app — add books, rate them, write notes, track reading information, and explore your collection with PageMark AI.
 
-**Live Demo** → [pagemark-gn0a.onrender.com](https://pagemark-gn0a.onrender.com) &nbsp;|&nbsp; **Author** → [Saish Sawant](https://github.com/SaishSawant21)
+**Live Demo** → https://pagemark-client.onrender.com  |  **Author** → [Saish Sawant](https://github.com/SaishSawant21)
 
 ---
 
 ## ✨ What it does
 
-PageMark is a full-stack CRUD web application inspired by [Derek Sivers' book notes](https://sive.rs/book). It demonstrates end-to-end software development — from database design and REST API integration to a fully responsive, themed frontend.
+PageMark is a full-stack CRUD web application inspired by [Derek Sivers' book notes](https://sive.rs/book).
 
-- 📚 Browse your personal reading shelf with a responsive book grid
-- ⭐ Rate books 1–5 stars with an interactive star picker
-- 📝 Write and edit personal notes for every book
-- 🎨 Auto-fetch book covers from the Open Library API via AJAX — previewed before saving
-- 🔃 Sort books by rating, date read, or title A–Z
-- ✏️ Full CRUD — add, view, edit, and delete book entries
-- 💾 Data persisted across two related PostgreSQL tables with foreign key constraints
-- 🖼️ Skeleton loaders while book covers fetch from Open Library
-- 📱 Fully responsive — works on mobile and desktop
-- 🚫 Custom 404 page for unknown routes
+The application currently works as a **shared book collection**. Anyone visiting the site can add, view, edit, and delete books, along with their ratings, genres, reading dates, and notes.
+
+At the moment, PageMark **does not have user authentication or book ownership tracking**. The application does not record which user added or modified a particular book.
+
+It also includes **PageMark AI**, an AI-powered reading companion that can answer questions based on the books currently stored in the collection.
+
+* 📚 Anyone can add books to the collection
+* ✏️ Add, edit, view, and delete books
+* ⭐ Rate books from 1–5 stars
+* 📝 Add and edit notes
+* 📅 Track the date a book was read
+* 🏷️ Add genres
+* 🔎 Search for books using the Open Library API
+* 🎨 Preview book covers before saving
+* 🔃 Sort books by rating, date read, or title A–Z
+* 🤖 Ask **PageMark AI** questions about the collection
+* 📖 Ask AI about an individual book
+* 💡 Get AI-powered reading suggestions
+* 💾 Persist data using PostgreSQL
+* 🖼️ Display Open Library book covers
+* 📱 Responsive interface
+* 🐳 Dockerized frontend and backend
+* ☁️ Deployed on Render
+
+---
+
+## 🔄 Project Evolution
+
+PageMark started as a **server-rendered Express application using EJS templates and Tailwind CSS**.
+
+The original version was built to practice full-stack CRUD development with Node.js, Express, PostgreSQL, EJS, Tailwind CSS, and external API integration.
+
+### Original architecture
+
+```text
+Express.js
+    │
+    ├── EJS templates
+    ├── Tailwind CSS
+    ├── PostgreSQL
+    ├── Axios
+    └── Open Library API
+```
+
+The original application included:
+
+* EJS server-side rendering
+* Express routes
+* PostgreSQL database
+* Tailwind CSS
+* Open Library integration
+* CRUD operations
+* Responsive book shelf
+
+### Current architecture
+
+The application was later **rebuilt and modernized into a separated frontend/backend architecture**.
+
+```text
+React + Vite
+     │
+     │ REST API
+     ▼
+Express.js
+     │
+     ├── PostgreSQL
+     ├── Open Library API
+     └── Gemini API
+```
+
+The frontend was migrated from EJS to **React**, with **Vite, Ant Design, React Router, and Axios** introduced for a more interactive client-side experience.
+
+The backend was separated into its own API service and the project was further upgraded with:
+
+* ⚛️ React frontend
+* ⚡ Vite
+* 🎨 Ant Design
+* 🧭 React Router
+* 🔌 Axios
+* 🧩 Separated frontend and backend
+* 🤖 PageMark AI using Gemini
+* 🐳 Docker
+* 🌐 Nginx
+* ☁️ Render deployment
+
+This evolution allowed PageMark to move from a traditional server-rendered application into a modern full-stack application while retaining the original CRUD functionality.
+
+---
+
+## 🔐 Current User Model
+
+PageMark currently **does not implement authentication or user accounts**.
+
+This means:
+
+```text
+Visitor
+   │
+   ├── Add a book
+   ├── View books
+   ├── Edit a book
+   └── Delete a book
+```
+
+There is currently no association between a book and the person who added it.
+
+For example, the database does not currently store:
+
+```text
+user_id
+created_by
+updated_by
+```
+
+Therefore, the collection is shared among all visitors.
+
+> **Future improvement:** User authentication and book ownership could be introduced in a future version so that each user can maintain a private reading shelf and track their own books.
 
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Runtime | Node.js (ES Modules) |
-| Backend | Express.js |
-| Database | PostgreSQL (Supabase hosted) |
-| Templating | EJS |
-| Styling | Tailwind CSS v4 |
-| HTTP Client | Axios |
-| External API | Open Library Search + Covers API |
-| Deployment | Render |
+| Layer            | Technology                       |
+| ---------------- | -------------------------------- |
+| Frontend         | React                            |
+| Build Tool       | Vite                             |
+| UI Library       | Ant Design                       |
+| Routing          | React Router                     |
+| HTTP Client      | Axios                            |
+| Backend          | Node.js + Express.js             |
+| Runtime          | Node.js (ES Modules)             |
+| Database         | PostgreSQL                       |
+| Database Hosting | Supabase                         |
+| AI               | Google Gemini API                |
+| Book API         | Open Library Search + Covers API |
+| Web Server       | Nginx                            |
+| Containerization | Docker                           |
+| Deployment       | Render                           |
 
 ---
 
-## 🏗️ Architecture
+## 🤖 PageMark AI
 
-The app uses a clean **two-table PostgreSQL schema** to separate book identity from personal reading data:
+PageMark includes an AI-powered reading companion using the Gemini API.
 
-```
-books              book_details
-─────────────      ──────────────────────
-id (PK)      ←──  book_id (FK)
-title              rating
-author             notes
-cover_id           date_read
-created_at         genre
-                   updated_at
+The AI can answer questions based on the books currently stored in PageMark, including:
+
+* What's in the collection?
+* Which books have the highest ratings?
+* What should I read next?
+* Which genres are in the collection?
+* What does the reading history look like?
+* Tell me about a specific book
+
+The frontend communicates with the Express backend, which retrieves the relevant book data and sends the request to Gemini.
+
+```text
+React Frontend
+      │
+      │ POST /api/ai/chat
+      ▼
+Express Backend
+      │
+      ├── PostgreSQL
+      │
+      └── Gemini API
 ```
 
-Book covers are never stored in the database — only the Open Library `cover_id` integer is saved. The cover URL is constructed on the fly:
+The Gemini API key is kept on the backend and is never exposed to the frontend.
+
+---
+
+## 🗄️ Database Architecture
+
+PageMark uses two related PostgreSQL tables:
+
+```text
+books
+────────────────
+id (PK)
+title
+author
+cover_id
+created_at
+       │
+       │
+       ▼
+book_details
+────────────────
+id (PK)
+book_id (FK)
+rating
+notes
+date_read
+genre
+updated_at
 ```
+
+The `book_id` foreign key references `books(id)` with cascading deletes.
+
+Only the Open Library `cover_id` is stored in the database. The cover URL is generated dynamically:
+
+```text
 https://covers.openlibrary.org/b/id/{cover_id}-M.jpg
 ```
 
 ---
 
-## 📁 Project Structure
+## 🚀 Deployment
 
-```
-pagemark/
-├── views/
-│   ├── partials/
-│   │   ├── header.ejs       # Navbar with breadcrumb + context-aware buttons
-│   │   └── footer.ejs       # Footer with branding
-│   ├── index.ejs            # Home — book shelf grid with sorting
-│   ├── bookdetail.ejs       # Book detail — cover, rating, notes, actions
-│   ├── addeditbook.ejs      # Shared Add / Edit form
-│   └── 404.ejs              # Custom not found page
-├── public/
-│   ├── style.css            # Tailwind v4 input
-│   └── output.css           # Tailwind compiled output (generated)
-├── index.js                 # Express server, routes, DB queries
-├── .env                     # Environment variables (not committed)
-├── .env.example             # Environment variable template
-├── .gitignore
-└── package.json
+PageMark is deployed using Docker containers on Render.
+
+**Frontend:** https://pagemark-client.onrender.com
+
+**Backend:** https://pagemark-server.onrender.com
+
+The frontend communicates with the backend through:
+
+```text
+https://pagemark-server.onrender.com/api
 ```
 
----
-
-## ⚙️ Getting Started
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/SaishSawant21/pagemark.git
-cd pagemark
-```
-
-### 2. Install dependencies
-
-```bash
-npm install
-```
-
-### 3. Set up environment variables
-
-```bash
-cp .env.example .env
-```
-
-Fill in your values in `.env`:
-
-```env
-PORT=3001
-DB_USER=your_db_user
-DB_HOST=your_db_host
-DB_NAME=your_db_name
-DB_PASSWORD=your_db_password
-DB_PORT=5432
-```
-
-Or use a single connection string:
-
-```env
-DATABASE_URL=postgresql://user:password@host:5432/dbname
-```
-
-### 4. Set up the database
-
-Run in psql or pgAdmin:
-
-```sql
-CREATE TABLE books (
-  id         SERIAL PRIMARY KEY,
-  title      VARCHAR(255) NOT NULL,
-  author     VARCHAR(255) NOT NULL,
-  cover_id   INTEGER,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE book_details (
-  id         SERIAL PRIMARY KEY,
-  book_id    INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE,
-  rating     INTEGER CHECK (rating >= 1 AND rating <= 5),
-  notes      TEXT,
-  date_read  DATE,
-  genre      VARCHAR(100),
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### 5. Start Tailwind CSS watcher
-
-```bash
-npx @tailwindcss/cli -i ./public/style.css -o ./public/output.css --watch
-```
-
-### 6. Start the server
-
-```bash
-nodemon index.js
-```
-
-Visit [http://localhost:3001](http://localhost:3001)
-
----
-
-## 🌐 API Integration
-
-**Open Library Search API** — called server-side via Axios when a user adds a book. Returns a `cover_i` field used as the cover ID.
-
-```
-GET https://openlibrary.org/search.json?title=Deep+Work&author=Cal+Newport&limit=1
-```
-
-**Open Library Covers API** — cover images are built from the stored ID at render time.
-
-```
-https://covers.openlibrary.org/b/id/8739161-M.jpg
-```
-
-No API key required. Cover fetch failures are handled gracefully — books save successfully with a fallback icon.
-
----
-
-## 💡 Key Engineering Decisions
-
-- **AJAX cover preview** — cover is fetched and previewed in the browser before the form is submitted, using the native `fetch()` API
-- **Two-table schema** — separates immutable book identity (`books`) from mutable reading data (`book_details`), making updates cleaner and queries explicit
-- **cover_id over URL** — storing only the integer ID keeps the database lightweight and lets Open Library handle image delivery
-- **Shared Add/Edit form** — a single `addeditbook.ejs` template handles both add and edit flows using an `edit` boolean flag passed from the route
-- **ES Modules** — the entire backend uses `import/export` syntax (`"type": "module"` in package.json)
+Sensitive backend configuration such as the PostgreSQL connection string and Gemini API key is stored through Render environment variables rather than committed to the repository.
 
 ---
 
