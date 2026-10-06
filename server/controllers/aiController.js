@@ -1,39 +1,42 @@
 import { generateAIResponse } from "../services/aiService.js";
-import { formatBooksForAI, getBooks } from "../services/bookService.js";
+import {
+	formatBooksForAI,
+	getBooks,
+} from "../services/bookService.js";
 
 export const chatWithAI = async (req, res) => {
-  try {
-    const { message, book } = req.body;
+	try {
+		const { message, book } = req.body;
 
-    if (!message || !message.trim()) {
-      return res.status(400).json({
-        error: "Message is required",
-      });
-    }
+		if (!message || !message.trim()) {
+			return res.status(400).json({
+				success: false,
+				message: "Message is required",
+			});
+		}
 
-    // Get all books for general/shelf-level questions
-    const books = await getBooks();
+		const books = await getBooks();
 
-    const bookContext = formatBooksForAI(books);
+		const bookContext = formatBooksForAI(books);
 
-    console.log("Shelf context:", bookContext);
-    console.log("Selected book:", book);
+		const response = await generateAIResponse(
+			message.trim(),
+			bookContext,
+			book || null
+		);
 
-    const response = await generateAIResponse(
-      message,
-      bookContext,
-      book
-    );
+		return res.json({
+			success: true,
+			data: {
+				response,
+			},
+		});
+	} catch (error) {
+		console.error("AI controller error:", error);
 
-    res.json({
-      response,
-    });
-
-  } catch (error) {
-    console.error("AI controller error:", error);
-
-    res.status(500).json({
-      error: "Unable to generate AI response",
-    });
-  }
-};
+		return res.status(500).json({
+			success: false,
+			message: "Unable to generate AI response",
+		});
+	}
+}
