@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import express from "express";
-
+import cors from "cors";
 import bookRoutes from "./routes/bookRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 
@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors({ origin: "http://localhost:5173", }));
 app.use("/api/books", bookRoutes);
 app.use("/api/ai", aiRoutes);
 
