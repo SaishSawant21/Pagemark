@@ -1,4 +1,4 @@
-import { getRequest, postRequest, putRequest } from "./api";
+import { deleteRequest, getRequest, postRequest, putRequest } from "./api";
 
 export const getBooks = async (sort = "default") => {
 	const config =
@@ -43,6 +43,13 @@ export const updateBook = async (id, bookData) => {
 		`/books/${id}`,
 		bookData
 	);
+
+	return response?.data;
+}
+
+export const deleteBook = async (id) => {
+	const response = await deleteRequest(
+		`/books/${id}`);
 
 	return response?.data;
 }
