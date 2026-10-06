@@ -136,3 +136,18 @@ export async function updateBook(id, bookData) {
     ...details,
   };
 }
+
+export async function deleteBook(id) {
+  const book = await bookModel.getBookById(id);
+
+  if (!book) {
+    return null;
+  }
+
+  await bookDetailsModel.deleteBookDetails(id);
+  await bookModel.deleteBook(id);
+
+  return {
+    id,
+  };
+}

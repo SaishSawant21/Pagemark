@@ -1,6 +1,6 @@
 import db from "../config/db.js";
 
-export async function getBookDetails(bookId) {
+export const getBookDetails = async(bookId)=> {
   const result = await db.query(
     `
 		SELECT
@@ -18,13 +18,13 @@ export async function getBookDetails(bookId) {
   return result.rows[0];
 }
 
-export async function createBookDetails(
+export const createBookDetails = async(
   bookId,
   dateRead,
   genre,
   rating,
   notes
-) {
+)=> {
   const result = await db.query(
     `
 		INSERT INTO book_details
@@ -71,6 +71,19 @@ export async function updateBookDetails(
       notes,
       bookId,
     ]
+  );
+
+  return result.rows[0];
+}
+
+export async function deleteBookDetails(bookId) {
+  const result = await db.query(
+    `
+		DELETE FROM book_details
+		WHERE book_id = $1
+		RETURNING book_id
+		`,
+    [bookId]
   );
 
   return result.rows[0];

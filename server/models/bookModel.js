@@ -87,3 +87,17 @@ export async function updateBook(
 
 	return result.rows[0];
 }
+
+export async function deleteBook(id) {
+
+	const result = await db.query(
+		`
+		DELETE FROM books
+		WHERE id = $1
+		RETURNING id
+		`,
+		[id]
+	);
+
+	return result.rows[0];
+}
