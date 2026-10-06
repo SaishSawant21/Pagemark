@@ -5,65 +5,66 @@ const ai = new GoogleGenAI({
 });
 
 export const generateAIResponse = async (
-	prompt,
+	message,
 	bookContext,
-	book = null
+	book
 ) => {
-
-	let contents;
-
-	if (book) {
-
-		contents = `
-You are an AI assistant for PageMark, a personal book tracking application.
-
-The user is currently viewing this specific book:
+	const bookSpecificContext = book
+		? `
+CURRENT BOOK
 
 Title: ${book.title}
 Author: ${book.author}
-Rating: ${book.rating || "Not rated"}
 Genre: ${book.genre || "Not specified"}
-User's Notes:
-${book.notes || "No notes added."}
+Rating: ${book.rating || "Not rated"}
+Date Read: ${book.date_read || "Not specified"}
+PageMark's Notes:
+${book.notes || "No notes available"}
+`
+		: "";
 
-The user asked:
-${prompt}
+	const prompt = `
+You are PageMark AI, a helpful reading companion for PageMark.
 
-Instructions:
-- Answer the user's question specifically about the book provided above.
-- Treat "this book" as the book currently being viewed.
-- Use the book's title, author, genre, rating, and the user's notes when they are relevant.
-- When summarising the user's notes, only use the notes provided above.
-- Do not invent or claim that the user's notes contain information that is not provided.
-- You may use your general knowledge about the book to answer questions about its ideas, themes, concepts, or content.
-- If you are not confident about a specific detail about the book, say so rather than inventing it.
-- Keep the answer concise, clear, and useful.
+ABOUT PAGEMARK
+
+PageMark is a public book collection and discovery website.
+The PageMark shelf contains books that have been added to the website.
+
+IMPORTANT CONTEXT RULES
+
+- Do not assume the visitor owns any book.
+- Do not assume the visitor has read any book.
+- Do not refer to the shelf as the visitor's personal shelf.
+- Refer to it as "the PageMark shelf" or "books currently available on PageMark".
+- Do not invent books that are not present in the provided shelf data.
+- Do not invent PageMark ratings, genres, dates, or notes.
+- PageMark's ratings and notes belong to the books, not to the visitor.
+- When referring to notes, say "PageMark's notes" or "the notes on this book".
+- If the requested book is not available on the PageMark shelf, clearly say so.
+- General knowledge about books, authors, themes, ideas, and recommendations is allowed.
+- Keep responses concise, natural, and useful.
+- Use Markdown when it improves readability.
+- Do not use HTML.
+- Do not output raw HTML entities.
+
+PAGEMARK SHELF
+
+${bookContext || "No books are currently available on the PageMark shelf."}
+
+${bookSpecificContext}
+
+USER QUESTION
+
+${message}
+
+Answer the user's question based on the available context.
 `;
-
-	} else {
-
-		contents = `
-You are an AI assistant for PageMark, a personal book tracking application.
-
-Here are the books currently available in the user's PageMark library:
-
-${bookContext}
-
-The user asked:
-${prompt}
-
-Instructions:
-- Answer the user's question using the PageMark books provided above.
-- Do not invent books or information about the user's library.
-- If a requested book is not in the provided library, say that it is not currently in the user's PageMark library.
-- Keep the answer concise and useful.
-`;
-	}
 
 	const response = await ai.models.generateContent({
 		model: "gemini-3.5-flash-lite",
-		contents,
+		contents: prompt,
 	});
 
 	return response.text;
-};
+}
