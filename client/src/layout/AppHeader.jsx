@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 const { Header } = Layout;
 const { Title } = Typography;
 
-function AppHeader() {
+const AppHeader = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const currentPage = location?.pathname;
@@ -41,7 +41,7 @@ function AppHeader() {
 				</div>
 
 				{/* Add Book */}
-				{ currentPage !=="/add" && <Button
+				{currentPage !== "/add" && <Button
 					type="primary"
 					onClick={() => navigate("/add")}
 					style={{
@@ -59,5 +59,4 @@ function AppHeader() {
 		</Header>
 	);
 }
-
 export default AppHeader;

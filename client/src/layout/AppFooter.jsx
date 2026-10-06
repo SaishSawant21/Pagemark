@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const { Footer } = Layout;
 const { Text } = Typography;
 
-function AppFooter() {
+const AppFooter = () => {
 	const navigate = useNavigate();
 
 	return (
@@ -57,5 +57,4 @@ function AppFooter() {
 		</Footer>
 	);
 }
-
 export default AppFooter;
