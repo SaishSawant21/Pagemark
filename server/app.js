@@ -6,10 +6,10 @@ import bookRoutes from "./routes/bookRoutes.js";
 import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
-
+const allowedOrigin = process.env.ACCESS_CONTROL_ORIGIN;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors({ origin: "http://localhost:5173", }));
+app.use(cors({ origin: allowedOrigin, }));
 app.use("/api/books", bookRoutes);
 app.use("/api/ai", aiRoutes);
 
